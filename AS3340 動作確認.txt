@@ -1,0 +1,82 @@
+AS3340(CEM3340互換) 動作確認
+
+CEM3340互換のAS3340を入手したので動作確認を行いました。AS3340はALFA https://www.alfarzpp.lv/というラトビアのメーカーの製品です。
+
+テストはLMNCさん及びElectric Druidさんの記事を参考にしました。
+
+参考
+ALFA AS3340: https://www.alfarzpp.lv/eng/sc/AS3340.php
+LMNC: https://www.lookmumnocomputer.com/cem-3340-diy-simple
+Electric Druid: CEM3340 VCO (Voltage Controlled Oscillator) designs: https://electricdruid.net/cem3340-vco-voltage-controlled-oscillator-designs/
+
+テスト回路図
+
+
+ブレッドボード配線
+
+
+CEM3340でも同様だと思いますが、データシートから注意点を抜粋します。
+
+電源について。VEEは-5Vが推奨されます。VEEに7.4Vのツェナーダイオードが内蔵されているので、VEEに-12Vを接続する場合は電流制限抵抗を入れる必要があります。
+
+REE = (VEE - 7.4) / .008
+
+-12Vの場合、REE = 575Ωとなります。今回のテストでは680Ωとしています。
+
+CV入力PINの絶対定格は±6Vとなっており±5V程度で使うのが良いと思います。
+
+PWM入力の0%設定が0V/typ.100%設定5.0V/typ.となっており0V～5Vで使うのが良いと思います。-1V～+6Vの範囲外では電流がかなり大きくなるそうです。
+
+※今回のテストでは+4V付近でパルス幅100%になりました。
+
+RV1(100kΩのPOT)でCVの基準値を設定します。RV2(10kΩのトリム)でScale Factorを調整します。Scale1とScaleに同じ電流が流れるようにしますが、CVに電圧を加えてScaleを調整するのが良いと思います。
+
+Hard Sync、Soft Sync、LinearFM、High Frequency Trackは今回は使用していません。
+
+簡単にRV1、RV2を調整して出力の様子を観測しました。
+
+Triangle
+
+C1:Triangle(10Pin) C2:CV
+
+Sawtooth
+
+C1:Sawtooth(8Pin) C2:CV
+
+Pulse
+
+C1:Pulse(4Pin) C2:CV
+
+PWM(5Pin)=2Vです。ここをオープンにしたままだとパルス幅が0になるので矩形波を出力する場合は適当な電圧を与えておきます。
+
+
+V/Oct
+
+CVの値を変えて出力周波数を測定しました。
+
+CV(V)	期待周波数(Hz)	実測周波数(Hz)	誤差(Hz)	誤差(%)
+-5 	6.875	7.0411	0.1661	2.42%
+-4 	13.75	14.068	0.318	2.31%
+-3 	27.5	28.04	0.54	1.96%
+-2 	55	55.879	0.879	1.60%
+-1 	110	110.93	0.93	0.85%
+0 	220	220.76	0.76	0.35%
+1 	440	439.3	-0.7	-0.16%
+2 	880	874.28	-5.72	-0.65%
+3 	1760	1738.3	-21.7	-1.23%
+4 	3520	3451.9	-68.1	-1.93%
+5 	7040	6860	-180	-2.56%
+
+グラフ
+
+誤差は-2Vぐらいまでは線形のようなので、もう少し調律できるかもしれません。
+
+メモ
+
+-5V電源を用意したほうが入力保護に使いやすそう。
+
+Scaleの調整用のRV2は多回転タイプが良さそう。
+
+波形によって振幅が異なるので後段のアンプで合わせる必要あり。
+
+Electric Druidさんの記事によると実機でLinear FMが使われている例は少ない。Hard Sync / Soft Syncはちょっと怪しい？
